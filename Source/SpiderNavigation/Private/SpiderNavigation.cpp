@@ -217,7 +217,7 @@ FSpiderNavNode* ASpiderNavigation::GetFromOpenList()
 FSpiderNavNode* ASpiderNavigation::FindClosestNode(FVector Location)
 {
 	FSpiderNavNode* ClosestNode = nullptr;
-	float MinDistance = 999999999;
+	float MinDistance = 999999999.f;
 	for (int32 i = 0; i != NavNodes.Num(); i++) {
 		float Distance = (NavNodes[i].Location - Location).Size();
 		if (Distance < MinDistance) {

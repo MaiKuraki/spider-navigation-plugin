@@ -48,19 +48,19 @@ public:
 
     /** Volume where to build navigation */
 	UPROPERTY(VisibleAnywhere, Category="SpiderNavGridBuilder")
-		UBoxComponent* VolumeBox;
+	UBoxComponent* VolumeBox;
 
 	/** For debug. Blueprint class which will be used to spawn actors on scene in specified volume */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpiderNavGridBuilder")
-		TSubclassOf<ASpiderNavGridTracer> TracerActorBP;
+	TSubclassOf<ASpiderNavGridTracer> TracerActorBP;
 
 	/** For debug. Blueprint class which will be used to spawn Navigation Points */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpiderNavGridBuilder")
-		TSubclassOf<ASpiderNavPoint> NavPointActorBP;
+	TSubclassOf<ASpiderNavPoint> NavPointActorBP;
 
 	/** For debug. Blueprint class which will be used to spawn Navigation Points on egdes when checking possible neightbors */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpiderNavGridBuilder")
-		TSubclassOf<ASpiderNavPointEdge> NavPointEdgeActorBP;
+	TSubclassOf<ASpiderNavPointEdge> NavPointEdgeActorBP;
 
 	/** The minimum distance between tracers to fill up scene */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpiderNavGridBuilder")

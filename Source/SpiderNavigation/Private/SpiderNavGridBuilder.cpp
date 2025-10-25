@@ -22,7 +22,7 @@
 
 #include "SpiderNavGridBuilder.h"
 #include "SpiderNavigationModule.h"
-
+#include "Engine/OverlapResult.h"
 DEFINE_LOG_CATEGORY(SpiderNAVGRID_LOG);
 
 // Sets default values
