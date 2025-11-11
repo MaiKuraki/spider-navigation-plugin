@@ -1,6 +1,7 @@
 //The MIT License
 //
 //Copyright(C) 2017 Roman Nix
+//Copyright(C) 2025 Yves Tanas
 //
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files(the "Software"), to deal
@@ -20,24 +21,33 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
 
-#include "SpiderNavGridBlockingVolume.h"
+#pragma once
 
-#include "Components/BoxComponent.h"
+#include "CoreMinimal.h"
+#include "BehaviorTree/BTTaskNode.h"
+#include "Navigation/PathFollowingComponent.h"
+#include "SpiderMoveToTaskNode.generated.h"
 
-ASpiderNavGridBlockingVolume::ASpiderNavGridBlockingVolume()
-{ 	
-	PrimaryActorTick.bCanEverTick = false;
-
-	if (BlockingVolume == nullptr)
-		BlockingVolume = CreateDefaultSubobject<UBoxComponent>(FName("BlockingVolume"));
-
-	RootComponent = BlockingVolume;
-}
-
-UBoxComponent* ASpiderNavGridBlockingVolume::GetBlockingVolume() const
+/**
+ * 
+ */
+UCLASS()
+class SPIDERNAVIGATION_API USpiderMoveToTaskNode : public UBTTaskNode
 {
-	return BlockingVolume;
-}
+	GENERATED_BODY()
+public:
+	USpiderMoveToTaskNode();
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input Value Check", meta = (ExposeOnSpawn = true))
+	FBlackboardKeySelector TargetLocation;
+protected:
+	virtual void InitializeFromAsset(UBehaviorTree& Asset) override;
+	virtual EBTNodeResult::Type ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) override;
+	virtual FString GetStaticDescription() const override;
+protected:
+	class AActor* AIController;
+	class UBehaviorTreeComponent* CachedOwnerComp;
 
-
-
+private:
+	void HandleMoveCompleted(bool Success);
+};

@@ -1,10 +1,40 @@
-// Copyright Yves Tanas 2025
+﻿//The MIT License
+//
+//Copyright(C) 2025 Yves Tanas
+//
+//Permission is hereby granted, free of charge, to any person obtaining a copy
+//of this software and associated documentation files(the "Software"), to deal
+//in the Software without restriction, including without limitation the rights
+//to use, copy, modify, merge, publish, distribute, sublicense, and / or sell
+//copies of the Software, and to permit persons to whom the Software is
+//furnished to do so, subject to the following conditions :
+//
+//The above copyright notice and this permission notice shall be included in
+//all copies or substantial portions of the Software.
+//
+//THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.IN NO EVENT SHALL THE
+//AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+//THE SOFTWARE.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "EditorUtilityWidget.h"
+#include "Structs/SpiderNavNodeBuilder.h"
+#include "EditorUtility/SpiderNavWorker.h"
+#include "Templates/SharedPointer.h"          
+#include "Templates/SharedPointerFwd.h"          
+#include "Templates/SharedPointerInternals.h"    
 #include "SpiderNavigationBuilderWidget.generated.h"
+// Forward-declare batch constants from SpiderNavigationBuilderWidget.cpp
+namespace SpiderBuilderConfig
+{
+	static constexpr int32 SAFE_SPAWN_MAX_RETRY = 120; // ~6 Min bei 3s Delay
+}
 
 /**
  * 
@@ -19,6 +49,8 @@ class SPIDERNAVIGATION_EDITOR_API USpiderNavigationBuilderWidget : public UEdito
 protected:
 
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
+	class UButton* CancelGeneration;
+	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UButton* Clear;
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UButton* Generate;
@@ -29,17 +61,19 @@ protected:
 	UPROPERTY(BlueprintReadWrite, meta = (BindWidget))
 	class UButton* Debug;
 protected:
-	/** For debug. Blueprint class which will be used to spawn actors on scene in specified volume */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpiderNavGridBuilder")
-	TSubclassOf<class ASpiderNavGridTracer> TracerActorBP;
+	UPROPERTY(EditAnywhere, Category = "Spider|Performance")
+	int32 TracesPerTickHint = 2000; // Wie viele Traces pro Tick (je 6 pro Knoten)
+	UPROPERTY(EditAnywhere, Category = "Spider|Performance")
+	float BuildThrottleDelay = 0.01f; // Sekunden zwischen Batches
 
-	/** For debug. Blueprint class which will be used to spawn Navigation Points */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpiderNavGridBuilder")
-	TSubclassOf<class ASpiderNavPoint> NavPointActorBP;
+	UPROPERTY(EditAnywhere, Category = "Spider|Performance")
+	int32 BatchesPerTick = 500; // Wie viele Batches pro Tick abgearbeitet werden
+	// Tuning-Werte im Header
+	UPROPERTY(EditAnywhere, Category = "Spider|Performance")
+	int32 ParallelBatchSize = 10000;
 
-	/** For debug. Blueprint class which will be used to spawn Navigation Points on egdes when checking possible neightbors */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpiderNavGridBuilder")
-	TSubclassOf<class ASpiderNavPointEdge> NavPointEdgeActorBP;
+	UPROPERTY(EditAnywhere, Category = "Spider|Performance")
+	float RelationCellMultiplier = 1.25f;
 
 	/** The minimum distance between tracers to fill up scene */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpiderNavGridBuilder")
@@ -100,26 +134,36 @@ protected:
 	/** Distance threshold to remove tracers enclosed in volumes  */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "SpiderNavGridBuilder")
 	float TracersInVolumesCheckDistance;
+	// Debug-Option
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	bool bDebugDraw = true;
 
+	// Visualisierungsparameter
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	float DebugSphereRadius = 8.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Debug")
+	float DebugDrawTime = 3.0f;
 protected:
 	virtual void NativeConstruct() override;
+	virtual void NativeDestruct() override;
 
 private:
-	TArray<TWeakObjectPtr<ASpiderNavGridTracer>> Tracers;
-	TArray<TWeakObjectPtr<class ASpiderNavPoint>> NavPoints;
 
 	TArray<FVector> NavPointsLocations;
 	TMap<int32, FVector> NavPointsNormals;
-	class ASpiderNavGridBuilder* Volume = nullptr;
+	class ASpiderNavGridBuilderVolume* Volume = nullptr;
+	// Neues Datenfeld
+	TSharedPtr<FSpiderNavWorker> Worker;
+	UPROPERTY()
+	TArray<FSpiderNavNodeBuilder> GeneratedNodes;
+
+	FCriticalSection RelationCritical;
 
 private:
 	void SpawnTracersAsync();
-	void RemoveTracersClosedInVolumesAsync();
 	void TraceFromAllTracersAsync();
-	void SpawnNavPointsAsync();
-	void BuildRelationsAsync();
-	void BuildPossibleEdgeRelationsAsync();
-	void RemoveNoConnectedAsync();
+	void BuildRelationsDataAsync();
 
 	void AddNavPointByHitResult(FHitResult RV_Hit);
 	bool CheckNavPointsVisibility(class ASpiderNavPoint* NavPoint1, class ASpiderNavPoint* NavPoint2);
@@ -128,18 +172,17 @@ private:
 	bool CheckNavPointCanSeeLocation(ASpiderNavPoint* NavPoint, FVector Location);
 
 	float Dmnop(const TMap<int32, FVector>* v, int32 m, int32 n, int32 o, int32 p);
-
-	void SaveGridAsync();
+	void SaveGridFromData();
+	//bool IsTracerInsideGeometry(UWorld* W, const FVector& Origin, const FCollisionQueryParams& Params) const;
 	int32 GetNavPointIndex(ASpiderNavPoint* NavPoint);
 
 	void RemoveAllTracers();
 	void RemoveAllNavPoints();
 
-	void EmptyAllAsync();
+	bool EnsureVolume();
 
-	bool VolumeNotNull();
-
-
+	UFUNCTION()
+	void OnCancelGenerationClicked();
 	UFUNCTION()
 	void OnClearClicked();
 	UFUNCTION()

@@ -1,6 +1,7 @@
 //The MIT License
 //
 //Copyright(C) 2017 Roman Nix
+//Copyright(C) 2025 Yves Tanas
 //
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files(the "Software"), to deal
@@ -20,24 +21,29 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
 
-#include "SpiderNavGridBlockingVolume.h"
+#pragma once
 
-#include "Components/BoxComponent.h"
+#include "CoreMinimal.h"
+#include "BehaviorTree/BTDecorator.h"
+#include "SpiderIsTargetToFollowMovedDecorator.generated.h"
 
-ASpiderNavGridBlockingVolume::ASpiderNavGridBlockingVolume()
-{ 	
-	PrimaryActorTick.bCanEverTick = false;
-
-	if (BlockingVolume == nullptr)
-		BlockingVolume = CreateDefaultSubobject<UBoxComponent>(FName("BlockingVolume"));
-
-	RootComponent = BlockingVolume;
-}
-
-UBoxComponent* ASpiderNavGridBlockingVolume::GetBlockingVolume() const
+/**
+ * 
+ */
+UCLASS()
+class SPIDERNAVIGATION_API USpiderIsTargetToFollowMovedDecorator : public UBTDecorator
 {
-	return BlockingVolume;
-}
-
-
-
+	GENERATED_BODY()
+	
+public:
+	USpiderIsTargetToFollowMovedDecorator();
+protected:
+	virtual bool CalculateRawConditionValue(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const override;
+	virtual void InitializeFromAsset(UBehaviorTree& Asset) override;
+	virtual FString GetStaticDescription() const override;
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input Value Check")
+	FBlackboardKeySelector TargetToFollow;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Input Value Check")
+	FBlackboardKeySelector TargetLocation;
+};

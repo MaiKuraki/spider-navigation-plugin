@@ -1,6 +1,7 @@
 //The MIT License
 //
 //Copyright(C) 2017 Roman Nix
+//Copyright(C) 2025 Yves Tanas
 //
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files(the "Software"), to deal
@@ -20,24 +21,31 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
 
-#include "SpiderNavGridBlockingVolume.h"
+#pragma once
 
-#include "Components/BoxComponent.h"
+#include "CoreMinimal.h"
+#include "UObject/NoExportTypes.h"
+#include "BehaviorTree/BehaviorTreeTypes.h" 
+#include "BehaviorTreeHelpers.generated.h"
 
-ASpiderNavGridBlockingVolume::ASpiderNavGridBlockingVolume()
-{ 	
-	PrimaryActorTick.bCanEverTick = false;
-
-	if (BlockingVolume == nullptr)
-		BlockingVolume = CreateDefaultSubobject<UBoxComponent>(FName("BlockingVolume"));
-
-	RootComponent = BlockingVolume;
-}
-
-UBoxComponent* ASpiderNavGridBlockingVolume::GetBlockingVolume() const
+/**
+ * 
+ */
+UCLASS(abstract)
+class SPIDERNAVIGATION_API UBehaviorTreeHelpers : public UObject
 {
-	return BlockingVolume;
-}
-
-
-
+	GENERATED_BODY()
+	
+public:
+	static FString AbortModeToText(EBTFlowAbortMode::Type Mode)
+	{
+		switch (Mode)
+		{
+		case EBTFlowAbortMode::None:          return TEXT("");                     // oder TEXT("(no aborts)")
+		case EBTFlowAbortMode::Self:          return TEXT("(aborts self)");
+		case EBTFlowAbortMode::LowerPriority: return TEXT("(aborts lower priority)");
+		case EBTFlowAbortMode::Both:          return TEXT("(aborts both)");
+		default:                               return TEXT("");
+		}
+	}
+};

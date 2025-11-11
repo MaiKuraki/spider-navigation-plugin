@@ -1,6 +1,7 @@
 //The MIT License
 //
 //Copyright(C) 2017 Roman Nix
+//Copyright(C) 2025 Yves Tanas
 //
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files(the "Software"), to deal
@@ -20,24 +21,22 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
 
-#include "SpiderNavGridBlockingVolume.h"
+#pragma once
 
-#include "Components/BoxComponent.h"
+#include "CoreMinimal.h"
+#include "GameFramework/Actor.h"
+#include "SpiderNavGridBuilderVolume.generated.h"
 
-ASpiderNavGridBlockingVolume::ASpiderNavGridBlockingVolume()
-{ 	
-	PrimaryActorTick.bCanEverTick = false;
-
-	if (BlockingVolume == nullptr)
-		BlockingVolume = CreateDefaultSubobject<UBoxComponent>(FName("BlockingVolume"));
-
-	RootComponent = BlockingVolume;
-}
-
-UBoxComponent* ASpiderNavGridBlockingVolume::GetBlockingVolume() const
+UCLASS()
+class SPIDERNAVIGATION_EDITOR_API ASpiderNavGridBuilderVolume : public AActor
 {
-	return BlockingVolume;
-}
+	GENERATED_BODY()
 
+public:
+	ASpiderNavGridBuilderVolume();
 
+	/** Volume where to build navigation */
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components)
+	class UBoxComponent* VolumeBox;
 
+};

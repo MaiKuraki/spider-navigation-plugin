@@ -20,24 +20,11 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
 
-#include "SpiderNavGridBlockingVolume.h"
+#include "SaveGame/SpiderNavGridSaveGame.h"
+#include "SpiderNavigationModule.h"
 
-#include "Components/BoxComponent.h"
-
-ASpiderNavGridBlockingVolume::ASpiderNavGridBlockingVolume()
-{ 	
-	PrimaryActorTick.bCanEverTick = false;
-
-	if (BlockingVolume == nullptr)
-		BlockingVolume = CreateDefaultSubobject<UBoxComponent>(FName("BlockingVolume"));
-
-	RootComponent = BlockingVolume;
-}
-
-UBoxComponent* ASpiderNavGridBlockingVolume::GetBlockingVolume() const
+USpiderNavGridSaveGame::USpiderNavGridSaveGame()
 {
-	return BlockingVolume;
+	SaveSlotName = TEXT("SpiderNavGrid");
+	UserIndex = 0;
 }
-
-
-

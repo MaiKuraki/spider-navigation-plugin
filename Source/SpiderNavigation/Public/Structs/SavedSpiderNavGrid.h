@@ -20,24 +20,23 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
 
-#include "SpiderNavGridBlockingVolume.h"
+#pragma once
 
-#include "Components/BoxComponent.h"
+#include "Structs/SpiderNavNode.h"
+#include "SavedSpiderNavGrid.generated.h"
 
-ASpiderNavGridBlockingVolume::ASpiderNavGridBlockingVolume()
-{ 	
-	PrimaryActorTick.bCanEverTick = false;
-
-	if (BlockingVolume == nullptr)
-		BlockingVolume = CreateDefaultSubobject<UBoxComponent>(FName("BlockingVolume"));
-
-	RootComponent = BlockingVolume;
-}
-
-UBoxComponent* ASpiderNavGridBlockingVolume::GetBlockingVolume() const
+USTRUCT(BlueprintType)
+struct FSavedSpiderNavGrid
 {
-	return BlockingVolume;
-}
+    GENERATED_BODY()
 
+public:
+	TArray<FSpiderNavNode> NavNodes;
+	// SavedIndex -> LocalIndex
+	TMap<int32, int32> NodesSavedIndexes;
 
-
+	int GetNavNodesCount() const
+	{
+		return NavNodes.Num();
+	}
+};

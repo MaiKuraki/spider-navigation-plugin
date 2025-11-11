@@ -1,6 +1,7 @@
 //The MIT License
 //
 //Copyright(C) 2017 Roman Nix
+//Copyright(C) 2025 Yves Tanas
 //
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files(the "Software"), to deal
@@ -23,21 +24,39 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "GameFramework/Actor.h"
-#include "SpiderNavGridBlockingVolume.generated.h"
+#include "BehaviorTree/BTDecorator.h"
+#include "Interfaces/SpiderNavigationInterface.h"
+#include "SpiderCloseEnoughDecorator.generated.h"
 
+/**
+ * 
+ */
 UCLASS()
-class SPIDERNAVIGATION_API ASpiderNavGridBlockingVolume : public AActor
+class SPIDERNAVIGATION_API USpiderCloseEnoughDecorator : public UBTDecorator
 {
 	GENERATED_BODY()
 	
-public:	
-	ASpiderNavGridBlockingVolume();
-
-public:	
-	class UBoxComponent* GetBlockingVolume() const;
+public:
+	USpiderCloseEnoughDecorator();
 
 protected:
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Components)
-	class UBoxComponent* BlockingVolume;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Condition", meta = (ExposeOnSpawn = true))
+	FBlackboardKeySelector TargetToFollow;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Condition", meta = (ExposeOnSpawn = true))
+	float AcceptableDistance;
+
+private:
+	mutable class UBlackboardComponent* BB;
+	mutable class UObject* Navigation;
+	mutable class AActor* Pawn;
+	mutable class AActor* Target;
+
+protected:
+	virtual bool CalculateRawConditionValue(class UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const override;
+	virtual void InitializeFromAsset(UBehaviorTree& Asset) override;
+
+private:
+	bool CheckReferences(class UBehaviorTreeComponent& OwnerComp)const;
+	bool CheckSpiderCloseEnough() const;
+	virtual FString GetStaticDescription() const override;
 };

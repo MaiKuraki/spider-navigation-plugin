@@ -1,6 +1,7 @@
 //The MIT License
 //
 //Copyright(C) 2017 Roman Nix
+//Copyright(C) 2025 Yves Tanas
 //
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files(the "Software"), to deal
@@ -20,24 +21,36 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
 
-#include "SpiderNavGridBlockingVolume.h"
+#pragma once
 
-#include "Components/BoxComponent.h"
+#include "CoreMinimal.h"
+#include "UObject/Interface.h"
+#include "SpiderNavigationInterface.generated.h"
 
-ASpiderNavGridBlockingVolume::ASpiderNavGridBlockingVolume()
-{ 	
-	PrimaryActorTick.bCanEverTick = false;
-
-	if (BlockingVolume == nullptr)
-		BlockingVolume = CreateDefaultSubobject<UBoxComponent>(FName("BlockingVolume"));
-
-	RootComponent = BlockingVolume;
-}
-
-UBoxComponent* ASpiderNavGridBlockingVolume::GetBlockingVolume() const
+// This class does not need to be modified.
+UINTERFACE(MinimalAPI)
+class USpiderNavigationInterface : public UInterface
 {
-	return BlockingVolume;
-}
+	GENERATED_BODY()
+};
 
+/**
+ * 
+ */
+class SPIDERNAVIGATION_API ISpiderNavigationInterface
+{
+	GENERATED_BODY()
 
+public:
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Search")
+	FVector FindClosestNodeLocation(FVector Location);
 
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Spiders")
+	TArray<class AActor*> GetAllSpiderNavGridsActors();
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Spiders")
+	void RegisterSpiderNavGridActor(class AActor* SpiderNavGridActor);
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Spiders")
+	void UnRegisterSpiderNavGridActor(class AActor* SpiderNavGridActor);
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Spiders")
+	TArray<FVector> FindPathBetweenPoints(FVector StartLocation, FVector EndLocation);
+};

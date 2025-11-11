@@ -1,6 +1,6 @@
 //The MIT License
 //
-//Copyright(C) 2017 Roman Nix
+//Copyright(C) 2025 Yves Tanas
 //
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files(the "Software"), to deal
@@ -20,24 +20,22 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
 
-#include "SpiderNavGridBlockingVolume.h"
+#pragma once
 
-#include "Components/BoxComponent.h"
+#include "CoreMinimal.h"
+#include "EditorSubsystem.h"
+#include "SpiderNavGridEditorSubsystem.generated.h"
 
-ASpiderNavGridBlockingVolume::ASpiderNavGridBlockingVolume()
-{ 	
-	PrimaryActorTick.bCanEverTick = false;
-
-	if (BlockingVolume == nullptr)
-		BlockingVolume = CreateDefaultSubobject<UBoxComponent>(FName("BlockingVolume"));
-
-	RootComponent = BlockingVolume;
-}
-
-UBoxComponent* ASpiderNavGridBlockingVolume::GetBlockingVolume() const
+/**
+ * 
+ */
+UCLASS()
+class SPIDERNAVIGATION_EDITOR_API USpiderNavGridEditorSubsystem : public UEditorSubsystem
 {
-	return BlockingVolume;
-}
+	GENERATED_BODY()
+	
+public:
 
-
-
+	UFUNCTION(BlueprintCallable, Category = "SaveGame")
+	bool SaveGrid(FString SaveSlotName, int32 UserIndex, class USpiderNavGridSaveGame* SaveGame);
+};

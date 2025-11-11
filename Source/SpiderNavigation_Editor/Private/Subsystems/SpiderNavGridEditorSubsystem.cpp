@@ -1,6 +1,6 @@
 //The MIT License
 //
-//Copyright(C) 2017 Roman Nix
+//Copyright(C) 2025 Yves Tanas
 //
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files(the "Software"), to deal
@@ -20,24 +20,15 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
 
-#include "SpiderNavGridBlockingVolume.h"
 
-#include "Components/BoxComponent.h"
+#include "Subsystems/SpiderNavGridEditorSubsystem.h"
 
-ASpiderNavGridBlockingVolume::ASpiderNavGridBlockingVolume()
-{ 	
-	PrimaryActorTick.bCanEverTick = false;
+#include "Kismet/GameplayStatics.h"
 
-	if (BlockingVolume == nullptr)
-		BlockingVolume = CreateDefaultSubobject<UBoxComponent>(FName("BlockingVolume"));
+#include "SaveGame/SpiderNavGridSaveGame.h"
 
-	RootComponent = BlockingVolume;
-}
 
-UBoxComponent* ASpiderNavGridBlockingVolume::GetBlockingVolume() const
+bool USpiderNavGridEditorSubsystem::SaveGrid(FString SaveSlotName, int32 UserIndex, USpiderNavGridSaveGame* SaveGame)
 {
-	return BlockingVolume;
+	return UGameplayStatics::SaveGameToSlot(SaveGame, SaveSlotName, UserIndex);
 }
-
-
-

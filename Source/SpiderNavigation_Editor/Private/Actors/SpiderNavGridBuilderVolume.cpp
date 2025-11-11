@@ -1,6 +1,7 @@
 //The MIT License
 //
 //Copyright(C) 2017 Roman Nix
+//Copyright(C) 2025 Yves Tanas
 //
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files(the "Software"), to deal
@@ -20,24 +21,18 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
 
-#include "SpiderNavGridBlockingVolume.h"
+#include "Actors/SpiderNavGridBuilderVolume.h"
 
 #include "Components/BoxComponent.h"
 
-ASpiderNavGridBlockingVolume::ASpiderNavGridBlockingVolume()
-{ 	
+ASpiderNavGridBuilderVolume::ASpiderNavGridBuilderVolume()
+{
 	PrimaryActorTick.bCanEverTick = false;
 
-	if (BlockingVolume == nullptr)
-		BlockingVolume = CreateDefaultSubobject<UBoxComponent>(FName("BlockingVolume"));
-
-	RootComponent = BlockingVolume;
+	VolumeBox = CreateDefaultSubobject<UBoxComponent>(TEXT("VolumeBox"));
+	VolumeBox->BodyInstance.SetCollisionProfileName("Custom");
+	VolumeBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+	VolumeBox->BodyInstance.SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	VolumeBox->SetWorldScale3D(FVector(50.f, 50.f, 50.f));
+	RootComponent = VolumeBox;
 }
-
-UBoxComponent* ASpiderNavGridBlockingVolume::GetBlockingVolume() const
-{
-	return BlockingVolume;
-}
-
-
-

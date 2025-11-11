@@ -20,24 +20,29 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
 
-#include "SpiderNavGridBlockingVolume.h"
+#pragma once
 
-#include "Components/BoxComponent.h"
+#include "CoreMinimal.h"
+#include "BehaviorTree/Decorators/BTDecorator_BlueprintBase.h"
+//#include "Interfaces/Spider/AI/TrackingSpiderAIInterface.h"
+#include "BehaviorTree/Decorators/BTDecorator_BlueprintBase.h"
+#include "SpiderIsAtLocationDecorator.generated.h"
 
-ASpiderNavGridBlockingVolume::ASpiderNavGridBlockingVolume()
-{ 	
-	PrimaryActorTick.bCanEverTick = false;
-
-	if (BlockingVolume == nullptr)
-		BlockingVolume = CreateDefaultSubobject<UBoxComponent>(FName("BlockingVolume"));
-
-	RootComponent = BlockingVolume;
-}
-
-UBoxComponent* ASpiderNavGridBlockingVolume::GetBlockingVolume() const
+/**
+ * 
+ */
+UCLASS()
+class SPIDERNAVIGATION_API USpiderIsAtLocationDecorator : public UBTDecorator_BlueprintBase
 {
-	return BlockingVolume;
-}
-
-
-
+	GENERATED_BODY()
+	
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Condition", meta = (ExposeOnSpawn = true))
+	FBlackboardKeySelector TargetLocation;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Condition", meta = (ExposeOnSpawn = true))
+	float AcceptableDistance = 50.f;
+protected:
+	virtual void InitializeFromAsset(UBehaviorTree& Asset) override;
+	virtual bool CalculateRawConditionValue(class UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory) const override;
+	virtual FString GetStaticDescription() const override;
+};

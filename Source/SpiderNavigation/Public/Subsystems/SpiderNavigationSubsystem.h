@@ -1,6 +1,7 @@
 //The MIT License
 //
 //Copyright(C) 2017 Roman Nix
+//Copyright(C) 2025 Yves Tanas
 //
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files(the "Software"), to deal
@@ -20,24 +21,36 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
 
-#include "SpiderNavGridBlockingVolume.h"
+#pragma once
 
-#include "Components/BoxComponent.h"
+#include "CoreMinimal.h"
+#include "Subsystems/GameInstanceSubsystem.h"
+#include "Structs/SpiderNavNode.h"
+#include "Structs/SavedSpiderNavGrid.h"
+#include "SpiderNavigationSubsystem.generated.h"
 
-ASpiderNavGridBlockingVolume::ASpiderNavGridBlockingVolume()
-{ 	
-	PrimaryActorTick.bCanEverTick = false;
-
-	if (BlockingVolume == nullptr)
-		BlockingVolume = CreateDefaultSubobject<UBoxComponent>(FName("BlockingVolume"));
-
-	RootComponent = BlockingVolume;
-}
-
-UBoxComponent* ASpiderNavGridBlockingVolume::GetBlockingVolume() const
+DECLARE_LOG_CATEGORY_EXTERN(SpiderNAVSubsystem_LOG, Log, All);
+/**
+ * 
+ */
+UCLASS()
+class SPIDERNAVIGATION_API USpiderNavigationSubsystem : public UGameInstanceSubsystem
 {
-	return BlockingVolume;
-}
+	GENERATED_BODY()
+	
+protected:
+	/** Implement this for initialization of instances of the system */
+	virtual void Initialize(FSubsystemCollectionBase& Collection) override;
 
+	/** Implement this for deinitialization of instances of the system */
+	virtual void Deinitialize() override;
 
+public:
+	UFUNCTION(BlueprintCallable, Category = "SaveGame")
+	FSavedSpiderNavGrid LoadGrid(FString GridSaveName, int32 GridIndex);
 
+private:
+	void AddGridNode(FSavedSpiderNavGrid& SavedGrid, int32 SavedIndex, FVector Location, FVector Normal);
+	void SetGridNodeNeighbors(FSavedSpiderNavGrid& SavedGrid, int32 SavedIndex, TArray<int32> NeighborsSavedIndexes);
+
+};

@@ -1,6 +1,6 @@
 //The MIT License
 //
-//Copyright(C) 2017 Roman Nix
+//Copyright(C) 2025 Yves Tanas
 //
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files(the "Software"), to deal
@@ -20,24 +20,40 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 //THE SOFTWARE.
 
-#include "SpiderNavGridBlockingVolume.h"
+#pragma once
 
-#include "Components/BoxComponent.h"
+#include "CoreMinimal.h"
+#include "HAL/Runnable.h"
+#include "HAL/RunnableThread.h"
+#include "HAL/Event.h"
+#include "Containers/Queue.h"
 
-ASpiderNavGridBlockingVolume::ASpiderNavGridBlockingVolume()
-{ 	
-	PrimaryActorTick.bCanEverTick = false;
+//#include "SpiderNavWorker.generated.h"
+class USpiderNavigationBuilderWidget;
 
-	if (BlockingVolume == nullptr)
-		BlockingVolume = CreateDefaultSubobject<UBoxComponent>(FName("BlockingVolume"));
-
-	RootComponent = BlockingVolume;
-}
-
-UBoxComponent* ASpiderNavGridBlockingVolume::GetBlockingVolume() const
+/**
+ * Hintergrund-Worker f�r Spider Navigation Tasks
+ */
+class FSpiderNavWorker : public FRunnable
 {
-	return BlockingVolume;
-}
+public:
+    FSpiderNavWorker(USpiderNavigationBuilderWidget* InOwner);
+    virtual ~FSpiderNavWorker() override;
 
+    // FRunnable Interface
+    virtual bool Init() override;
+    virtual uint32 Run() override;
+    virtual void Stop() override;
+    virtual void Exit() override;
 
+    // Public API
+    void EnqueueTask(TFunction<void()> InTask);
+    bool IsRunning() const { return bRunning; }
 
+private:
+    TQueue<TFunction<void()>, EQueueMode::Mpsc> TaskQueue;
+    FEvent* WakeEvent;
+    FRunnableThread* Thread;
+    FThreadSafeBool bRunning;
+    USpiderNavigationBuilderWidget* Owner;
+};
